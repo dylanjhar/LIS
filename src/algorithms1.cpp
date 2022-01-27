@@ -24,21 +24,15 @@ void loadSequence(ifstream& infile, vector<int>& seq) {
 }
 
 void lis(vector<int>& seq) {
-	vector<int> length(seq.size());
-	vector<string> subSeq(seq.size());
+	vector<int> length(seq.size(), 1);
+	vector<vector<int>> subSeq;
 
 	int max = 1;
-
-	for(int i = 0; i < seq.size(); i++) {
-		length[i] = 1;
-		subSeq[i] = to_string(seq[i]) + " ";
-	}
 
 	for(int i = 1; i < seq.size(); i++) {
 		for(int j = 0; j < i; j++) {
 			if(seq[i] > seq[j] && length[i] <= length[j]) {
 				length[i] = length[j] + 1;
-				subSeq[i] = subSeq[j] + to_string(seq[i]) + " ";
 			}
 			if(length[i] > max) {
 				max = length[i];
@@ -46,10 +40,32 @@ void lis(vector<int>& seq) {
 		}
 	}
 
-	for(int i = 0; i < subSeq.size(); i++) {
-		if(length[i] == max) {
-			cout << max << ": " << subSeq[i];
+	for(int i = length.size(); i > 0; i--) {
+		for(int j = length.size(); j > 0; j--) {
+			if(i == length.size() && length[j] == max) {
+				subSeq.push_back({seq[j]});
+			} else if(length[j] == max) {
+				int size = subSeq.size();
+				for(int x = 0; x < size; x++) {
+					if(seq[j] < subSeq[x][subSeq[x].size() - 1]) {
+						subSeq[x].push_back(seq[j]);
+					} else if(subSeq[x].size() >= 2 && seq[j] < subSeq[x][subSeq[x].size() - 2]) {
+						vector<int> temp = subSeq[x];
+						subSeq.push_back(temp);
+						subSeq[subSeq.size() - 1][subSeq[x].size() - 1] = seq[j];
+					}
+				}
+			}
 		}
+		max--;
+	}
+
+	for(int i = 0; i < subSeq.size(); i++) {
+		cout << subSeq[i].size() << ": ";
+		for (int j = 0; j < subSeq[i].size(); j++) {
+			cout << subSeq[i][j] << " ";
+		}
+		cout << endl;
 	}
 }
 
