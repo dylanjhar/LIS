@@ -25,6 +25,7 @@ void loadSequence(ifstream& infile, vector<int>& seq) {
 
 void lis(vector<int>& seq) {
 	vector<int> length(seq.size(), 1);
+	vector<vector<int>> pos;
 	vector<vector<int>> subSeq;
 
 	int max = 1;
@@ -40,19 +41,30 @@ void lis(vector<int>& seq) {
 		}
 	}
 
-	for(int i = length.size(); i > 0; i--) {
-		for(int j = length.size(); j > 0; j--) {
-			if(i == length.size() && length[j] == max) {
+	int maxConst = max;
+
+	for(int i = length.size() - 1; i >= 0; i--) {
+		for(int j = length.size() - 1; j >= 0; j--) {
+			if(i == length.size() - 1 && length[j] == max) {
 				subSeq.push_back({seq[j]});
-			} else if(length[j] == max) {
+				pos.push_back({j});
+			}
+			else if(length[j] == max) {
 				int size = subSeq.size();
 				for(int x = 0; x < size; x++) {
-					if(seq[j] < subSeq[x][subSeq[x].size() - 1]) {
+					if(j < pos[x][pos[x].size() - 1] &&
+							seq[j] < subSeq[x][subSeq[x].size() - 1]) {
 						subSeq[x].push_back(seq[j]);
-					} else if(subSeq[x].size() >= 2 && seq[j] < subSeq[x][subSeq[x].size() - 2]) {
+						pos[x].push_back(j);
+					}
+					else if(subSeq[x].size() >= 2 &&
+							j < pos[x][pos[x].size() - 2] && seq[j] < subSeq[x][subSeq[x].size() - 2]) {
 						vector<int> temp = subSeq[x];
 						subSeq.push_back(temp);
 						subSeq[subSeq.size() - 1][subSeq[x].size() - 1] = seq[j];
+						temp = pos[x];
+						pos.push_back(temp);
+						pos[pos.size() - 1][pos[x].size() - 1] = j;
 					}
 				}
 			}
